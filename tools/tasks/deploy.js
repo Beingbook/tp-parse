@@ -10,9 +10,9 @@ import build from './build';
 async function deploy() {
   // By default deploy to the staging deployment slot
   const remote = {
-    name: 'heroku',
-    url: 'https://git.heroku.com/react-isomorphic.git',
-    website: 'https://react-isomorphic.herokuapp.com',
+    name: 'telpo',
+    url: 'dokku@175.126.111.30:api',
+    website: 'https://api.telpo.co.kr',
   };
 
   // Initialize a new Git repository inside the `/build` folder

@@ -1,18 +1,36 @@
 // @flow
 /* eslint no-console: 0 */
 import express from 'express';
+import { ParseServer } from 'parse-server';
+import {
+  PARSE_CLOUD_PATH,
+  PARSE_DATABASE_URI,
+  PARSE_APP_ID,
+  PARSE_SERVER_URL,
+  PARSE_MASTER_KEY,
+  SERVER_PORT,
+} from './config';
 
 const app = express();
-const server = app.listen(process.env.PORT || PORT, () => {
+
+app.use('/parse', new ParseServer({
+  databaseURI: PARSE_DATABASE_URI,
+  masterKey: PARSE_MASTER_KEY,
+  appId: PARSE_APP_ID,
+  cloud: PARSE_CLOUD_PATH,
+  serverURL: PARSE_SERVER_URL,
+}));
+
+app.get('*', (req, res) => {
+  res.status(200).send('Hello World');
+});
+
+const server = app.listen(SERVER_PORT, () => {
   const { port } = server.address();
   console.log(`The server is listening at http://localhost:${port}`);
   if (DEV) {
     console.log('__DEV_START__');
   }
-});
-
-app.get('*', (req, res) => {
-  res.status(200).send('Hello World');
 });
 
 export default server;
