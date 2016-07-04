@@ -17,8 +17,8 @@ export const srcPath = `${ROOT}/src`;
 export const modulePath = `${ROOT}/node_modules`;
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? 'development' : 'production',
-  __DEV__: DEBUG,
-  __PORT__: DEV_PORT,
+  DEV: DEBUG,
+  PORT: DEV_PORT,
 };
 export const stats = {
   colors: true,
@@ -51,7 +51,8 @@ export const webpackCommon = {
         exclude: /(node_modules)/,
         loader: 'babel-loader',
         query: {
-          presets: ['es2015', 'stage-0', 'stage-1', 'stage-2', 'stage-3'],
+          presets: ['es2015', 'stage-2'],
+          plugins: ['transform-flow-strip-types'],
         },
       }, {
         test: /\.json$/,

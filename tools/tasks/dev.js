@@ -5,7 +5,7 @@ import serve from './serve';
 import clean from './clean';
 import copy from './copy';
 
-function _dev() {
+function devWatcher() {
   return new Promise((resolve, reject) => {
     const webpackPackage = [webpackServer];
     const bundler = webpack(webpackPackage);
@@ -23,7 +23,7 @@ function _dev() {
 async function dev() {
   await run(clean);
   await run(copy);
-  await _dev();
+  await devWatcher();
 }
 
 export default dev;

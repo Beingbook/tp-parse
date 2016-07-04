@@ -5,15 +5,13 @@
 [![Code Climate](https://codeclimate.com/github/Beingbook/babel6-api-server/badges/gpa.svg)](https://codeclimate.com/github/Beingbook/babel6-api-server)
 [![Issue Count](https://codeclimate.com/github/Beingbook/babel6-api-server/badges/issue_count.svg)](https://codeclimate.com/github/Beingbook/babel6-api-server)
 
-Build api server with Babel!
+A nice package to deploy your node.js project as PaaS.
 
 ## Features
 
 * Babel 6, ES2015 + ES7
 * Mocha Test Environment
 * Webpack, development and production
-* Mongoose
-* Passport Authentication
 * Airbnb config eslint
 
 ## See Documents
@@ -33,12 +31,8 @@ Run `tree -L 2 -I 'node_modules|build|.git|.DS_Store' -A -a` then you will see b
 ├── README.md
 ├── package.json   # dependency list
 ├── src            # application source code
-│ ├── api          # api end point
-│ ├── assets       # static files
-│ ├── config       # configuration such as credentials
-│ ├── core         # configuration such as credentials
-│ ├── models       # mongoose models
-│ ├── public       # static files to serve through http or https
+│ ├── assets       # private static files
+│ ├── public       # public static files
 │ ├── server.js    # server entry
 ├── tests          # unit tests
 └── tools          # build and deployment tools
