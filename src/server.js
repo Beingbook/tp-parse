@@ -9,6 +9,7 @@ import {
   PARSE_SERVER_URL,
   PARSE_MASTER_KEY,
   SERVER_PORT,
+  FACEBOOK_APP_ID,
 } from './config';
 
 const app = express();
@@ -19,6 +20,11 @@ app.use('/parse', new ParseServer({
   appId: PARSE_APP_ID,
   cloud: PARSE_CLOUD_PATH,
   serverURL: PARSE_SERVER_URL,
+  oauth: {
+    facebook: {
+      appId: FACEBOOK_APP_ID,
+    },
+  },
 }));
 
 app.get('*', (req, res) => {

@@ -18,6 +18,8 @@
       2, {
         "capIsNewExceptions": ["Router"]
       }
-    ]
+    ],
+    "generator-star-spacing": 0,
+    "import/no-extraneous-dependencies": 0
   }
 }

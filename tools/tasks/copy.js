@@ -1,8 +1,8 @@
 import ncp from 'ncp';
 import replace from 'replace';
+import { all } from 'bluebird';
 import watch from '../lib/watch';
 import mkdir from '../lib/mkdir';
-import { all } from 'bluebird';
 import { DEBUG, ROOT } from '../config';
 
 function ncpAsync(origin, carry) {
