@@ -1,2 +1,3 @@
 // @flow
-require('./cloud/games');
+import './cloud/games';
+import './cloud/reviewGame';
