@@ -1,6 +1,7 @@
 // @flow
 /* eslint no-console: 0 */
 import express from 'express';
+import http from 'http';
 import { ParseServer } from 'parse-server';
 import {
   PARSE_CLOUD_PATH,
@@ -25,18 +26,24 @@ app.use('/parse', new ParseServer({
       appId: FACEBOOK_APP_ID,
     },
   },
+  liveQuery: {
+    classNames: ['User', '_User', 'Game', 'Review'],
+  },
 }));
 
 app.get('*', (req, res) => {
   res.status(200).send('Hello World');
 });
 
-const server = app.listen(SERVER_PORT, () => {
+const server: Object = http.createServer(app);
+server.listen(SERVER_PORT, () => {
   const { port } = server.address();
   console.log(`The server is listening at http://localhost:${port}`);
   if (DEV) {
     console.log('__DEV_START__');
   }
 });
+
+ParseServer.createLiveQueryServer(server);
 
 export default server;

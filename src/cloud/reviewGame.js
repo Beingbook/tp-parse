@@ -6,20 +6,16 @@ import {
 Parse.Cloud.define('reviewGame', async (request, response) => {
   try {
     Parse.Cloud.useMasterKey();
-    const { sessionToken, gameId, rate } = request.params;
-    if (!sessionToken) {
-      throw new Error('need authentication');
-    }
-    const queryOptions = { sessionToken };
+    const { sessionToken, gameId, rate, cancelRate } = request.params;
     const user: Object = await getUserBySessionToken(sessionToken);
     const gameQuery = new Parse.Query('Game');
-    const game = await gameQuery.get(gameId, queryOptions);
+    const game = await gameQuery.get(gameId);
     let myReview;
     const myReviewQuery = new Parse.Query('Review');
     myReviewQuery
       .equalTo('author', user)
       .equalTo('game', game);
-    myReview = await myReviewQuery.first(queryOptions);
+    myReview = await myReviewQuery.first();
     if (!myReview) {
       myReview = new Parse.Object('Review');
       const myReviewACL = new Parse.ACL();
@@ -31,19 +27,25 @@ Parse.Cloud.define('reviewGame', async (request, response) => {
       myReview.set('author', user);
       myReview.set('game', game);
     }
-    if (rate) {
-      if (typeof(rate) !== 'number' || rate < 0.5 || rate > 5) {
-        throw new Error('rate range should be 0.5 ~ 5 number');
+    if (rate || cancelRate) {
+      const previousRate = myReview.get('rate');
+      if (myReview.existed()) {
+        if (previousRate) {
+          myReview.set('previousRate', previousRate);
+        } else {
+          myReview.unset('previousRate');
+        }
       }
-      myReview.set('rate', rate);
+      if (cancelRate) {
+        myReview.unset('rate');
+      } else {
+        myReview.set('rate', rate);
+      }
     }
-    await myReview.save(null, queryOptions);
-    game.relation('reviews').add(myReview);
-    await game.save(null, queryOptions);
-    user.relation('reviews').add(myReview);
-    await user.save(null, queryOptions);
+    await myReview.save();
     response.success({
-      user: user.id,
+      id: myReview.id,
+      author: user.id,
       game: game.id,
       rate,
     });
