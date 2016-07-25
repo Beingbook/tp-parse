@@ -9,6 +9,7 @@ type gamesFuncArgs = {
   search?: ?string,
   sessionToken?: ?string,
   mainTag?: ?string,
+  contentFilter?: void | 'onlyRatedByMe' | 'withoutRatedByMe',
 };
 
 const fetchTags = (tag) => ({
@@ -18,7 +19,10 @@ const fetchTags = (tag) => ({
 
 Parse.Cloud.define('findGames', async (request, response) => {
   try {
-    const { skip, limit, tags, search, sessionToken, mainTag }: gamesFuncArgs = request.params;
+    const {
+      skip, limit, tags, search, mainTag,
+      sessionToken, contentFilter,
+    }: gamesFuncArgs = request.params;
     const queryOptions = { sessionToken };
     let query = new Parse.Query('Game');
     const user:? Object = sessionToken ? await getUserBySessionToken(sessionToken) : undefined;
@@ -36,14 +40,26 @@ Parse.Cloud.define('findGames', async (request, response) => {
       tagFilter.containedIn('label', tags);
       query.matchesQuery('tags', tagFilter);
     }
+    if (user) {
+      if (contentFilter) {
+        const reviewFilter = new Parse.Query('Review');
+        reviewFilter.equalTo('author', user);
+        if (contentFilter === 'onlyRatedByMe') {
+          reviewFilter.exists('rate');
+        } else if (contentFilter === 'withoutRatedByMe') {
+          reviewFilter.doesNotExist('rate');
+        }
+        query.matchesQuery('reviews', reviewFilter);
+      }
+    }
     if (typeof(search) === 'string' && search.length) {
       const containsTitle = new Parse.Query('Game');
       containsTitle.contains('title', search);
       const containsWord = new Parse.Query('Game');
       containsWord.equalTo('words', search);
       const containsKoreanTitle = new Parse.Query('Game');
-      containsKoreanTitle.contains('koreanTitle');
-      query = Parse.Query.or(containsTitle, containsWord);
+      containsKoreanTitle.contains('koreanTitle', search);
+      query = Parse.Query.or(containsTitle, containsWord, containsKoreanTitle);
     }
     let games = await query.find(queryOptions);
     const fetchGames = async (game: Object): Promise<Object> => {
@@ -67,6 +83,7 @@ Parse.Cloud.define('findGames', async (request, response) => {
       return {
         id: game.id,
         title: game.get('title'),
+        koreanTitle: game.get('koreanTitle'),
         description: game.get('description'),
         words: game.get('words'),
         thumbnail: thumbnail && thumbnail.url(),

@@ -6,3 +6,4 @@ import './cloud/review';
 // cloud functions
 import './cloud/findGames';
 import './cloud/reviewGame';
+import './cloud/userSummary';
