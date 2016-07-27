@@ -1,5 +1,7 @@
 // @flow
 
+import { recommendationEvent } from './utils';
+
 Parse.Cloud.beforeSave('Review', async (request, response) => {
   try {
     const review = request.object;
@@ -10,16 +12,7 @@ Parse.Cloud.beforeSave('Review', async (request, response) => {
     author = await author.fetch();
     const rate: ?number = review.get('rate');
     if (rate) {
-      const emailVerified: ?boolean = author.get('emailVerified');
-      const authData: ?Object = author.get('authData');
-      const canRate = (
-        (authData && authData.facebook && authData.facebook.id) ||
-        emailVerified
-      );
-      if (!canRate) {
-        throw new Error('only email verified user or 3rd-authenticated user can write review');
-      }
-      if (typeof(rate) !== 'number' || rate < 0.5 || rate > 5) {
+      if (typeof (rate) !== 'number' || rate < 0.5 || rate > 5) {
         throw new Error('rate should be 0.5 ~ 5 number');
       }
       if (rate % 0.5 !== 0) {
@@ -50,6 +43,14 @@ Parse.Cloud.afterSave('Review', async (request) => {
           averageRate = ((averageRate * (rateCount - 1)) + rate) / rateCount;
           game.set('averageRate', averageRate);
           game.set('rateCount', rateCount);
+          await recommendationEvent.createAction({
+            event: 'rate',
+            uid: user.id,
+            iid: game.id,
+            properties: {
+              rating: rate,
+            },
+          });
         }
         game.relation('rates').add(review);
       }
@@ -72,15 +73,31 @@ Parse.Cloud.afterSave('Review', async (request) => {
             // new rate
             rateCount += 1;
             averageRate = (rateSum + rate) / rateCount;
+            await recommendationEvent.createAction({
+              event: 'rate',
+              uid: user.id,
+              iid: game.id,
+              properties: {
+                rating: rate,
+              },
+            });
           } else if (!rate && previousRate) {
             // remove rate
             rateCount -= 1;
             averageRate = (rateSum - previousRate) / rateCount;
           } else {
             // update rate
-            if (typeof(rate) === 'number' && typeof(previousRate) === 'number') {
+            if (typeof (rate) === 'number' && typeof (previousRate) === 'number') {
               averageRate = (rateSum + (rate - previousRate)) / rateCount;
             }
+            await recommendationEvent.createAction({
+              event: 'rate',
+              uid: user.id,
+              iid: game.id,
+              properties: {
+                rating: rate,
+              },
+            });
           }
           game.set('averageRate', averageRate);
           game.set('rateCount', rateCount);
@@ -90,6 +107,9 @@ Parse.Cloud.afterSave('Review', async (request) => {
         let averageRate = user.get('averageRate') || 0;
         let rateCount = user.get('rateCount') || 0;
         const rateSum = averageRate * rateCount;
+        if (typeof (rate) === 'number' && typeof (previousRate) === 'number') {
+          averageRate = (rateSum + (rate - previousRate)) / rateCount;
+        }
         if (rate && !previousRate) {
           rateCount += 1;
           averageRate = (rateSum + rate) / rateCount;
@@ -98,10 +118,6 @@ Parse.Cloud.afterSave('Review', async (request) => {
           rateCount -= 1;
           averageRate = (rateSum - previousRate) / rateCount;
           user.relation('rates').remove(review);
-        } else {
-          if (typeof(rate) === 'number' && typeof(previousRate) === 'number') {
-            averageRate = (rateSum + (rate - previousRate)) / rateCount;
-          }
         }
         user.set('averageRate', averageRate);
         user.set('rateCount', rateCount);

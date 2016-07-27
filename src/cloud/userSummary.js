@@ -43,7 +43,7 @@ Parse.Cloud.define('userSummary', async (request, response) => {
     response.success({
       id: user.id,
       profileImg: user.get('profileImg'),
-      username: user.get('username'),
+      displayName: user.get('displayName'),
       averageRate: user.get('averageRate'),
       rateCount: user.get('rateCount'),
       bestGames,

@@ -29,7 +29,7 @@ Parse.Cloud.define('findGames', async (request, response) => {
     query
       .skip(skip || 0)
       .limit(limit || 40)
-      .addDescending('poplularOrder');
+      .ascending('poplularOrder');
     if (mainTag) {
       const tagFilter = new Parse.Query('Tag');
       tagFilter.equalTo('label', mainTag);
@@ -42,17 +42,17 @@ Parse.Cloud.define('findGames', async (request, response) => {
     }
     if (user) {
       if (contentFilter) {
-        const reviewFilter = new Parse.Query('Review');
+        const reviewFilter = user.relation('rates').query();
+        reviewFilter.exists('rate');
         reviewFilter.equalTo('author', user);
         if (contentFilter === 'onlyRatedByMe') {
-          reviewFilter.exists('rate');
+          query.matchesQuery('rates', reviewFilter);
         } else if (contentFilter === 'withoutRatedByMe') {
-          reviewFilter.doesNotExist('rate');
+          query.doesNotMatchQuery('rates', reviewFilter);
         }
-        query.matchesQuery('reviews', reviewFilter);
       }
     }
-    if (typeof(search) === 'string' && search.length) {
+    if (typeof (search) === 'string' && search.length) {
       const containsTitle = new Parse.Query('Game');
       containsTitle.contains('title', search);
       const containsWord = new Parse.Query('Game');

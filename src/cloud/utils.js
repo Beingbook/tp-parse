@@ -1,5 +1,22 @@
 // @flow
 
+import pio from 'predictionio-driver';
+import {
+  PIO_TELPO_RECOMMENDATION,
+} from '../config';
+
+export const recommendationEvent = new pio.Events({
+  appId: PIO_TELPO_RECOMMENDATION.appId,
+  accessKey: PIO_TELPO_RECOMMENDATION.accessKey,
+  url: PIO_TELPO_RECOMMENDATION.url,
+  eventPort: PIO_TELPO_RECOMMENDATION.eventPort,
+});
+
+export const recommendationEngine = new pio.Engine({
+  url: PIO_TELPO_RECOMMENDATION.url,
+  enginePort: PIO_TELPO_RECOMMENDATION.enginePort,
+});
+
 export const Game: Object = Parse.Object.extend('Game');
 export const Review: Object = Parse.Object.extend('Review');
 export const Tag: Object = Parse.Object.extend('Tag');
