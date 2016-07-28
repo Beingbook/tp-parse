@@ -27,6 +27,22 @@ Parse.Cloud.define('userSummary', async (request, response) => {
     }
     const query = new Parse.Query(Parse.User);
     const user = await query.get(userId);
+
+    if (!user) {
+      throw new Error('user is not existing');
+    }
+    // const rates: Array<Object> = await user.relation('rates').query()
+    //   .include(['game', 'game.tags'])
+    //   .find();
+    // const rateCount: ?number = user.get('rateCount');
+
+    // @TODO: implment giving user title
+    // rates.map((review: Object) => {
+    //   const rate = review.get('rate'); // rating score
+    //   const game = review.get('game'); // target game
+    //   const tags = game.get('tags'); // tags of target game
+    // });
+
     const userReviews = user.relation('rates');
     const bestGamesQuery = userReviews.query();
     bestGamesQuery.exists('rate');
@@ -42,6 +58,7 @@ Parse.Cloud.define('userSummary', async (request, response) => {
     worstGames = await Promise.map(worstGames, fetchGame);
     response.success({
       id: user.id,
+      title: 'user title',
       profileImg: user.get('profileImg'),
       displayName: user.get('displayName'),
       averageRate: user.get('averageRate'),

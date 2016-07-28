@@ -2,6 +2,7 @@ import GitRepo from 'git-repository';
 import run from '../lib/run';
 import fetch from '../lib/fetch';
 import build from './build';
+import { DEBUG } from '../config';
 
 /**
  * Deploy the contents of the `/build` folder to a remote
@@ -9,7 +10,11 @@ import build from './build';
  */
 async function deploy() {
   // By default deploy to the staging deployment slot
-  const remote = {
+  const remote = DEBUG ? {
+    name: 'test-telpo',
+    url: 'dokku@175.126.111.30:test-api',
+    website: 'https://test-api.telpo.co.kr',
+  } : {
     name: 'telpo',
     url: 'dokku@175.126.111.30:api',
     website: 'https://api.telpo.co.kr',

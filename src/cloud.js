@@ -9,4 +9,3 @@ import './cloud/game';
 import './cloud/findGames';
 import './cloud/reviewGame';
 import './cloud/userSummary';
-import './cloud/getUserTitle';

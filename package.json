@@ -6,7 +6,7 @@
     "build": "npm run test && babel-node tools/run build -- --release",
     "lint": "eslint . --ext .js,.jsx",
     "clean": "babel-node tools/run clean",
-    "deploy": "npm run lint && npm run test && babel-node tools/run deploy -- --release"
+    "deploy": "npm run lint && npm run test && babel-node tools/run deploy"
   },
   "babel": {
     "presets": [
