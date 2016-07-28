@@ -33,7 +33,6 @@ app.use('/parse', new ParseServer({
     classNames: ['_User', 'Game', 'Review'],
     redisURL: REDIS_URL,
   },
-  preventLoginWithUnverifiedEmail: false,
 }));
 
 app.get('*', (req, res) => {
