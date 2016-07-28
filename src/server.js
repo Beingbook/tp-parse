@@ -12,7 +12,6 @@ import {
   SERVER_PORT,
   FACEBOOK_APP_ID,
   REDIS_URL,
-  APP_URL,
 } from './config';
 
 const app = express();
@@ -34,24 +33,7 @@ app.use('/parse', new ParseServer({
     classNames: ['_User', 'Game', 'Review'],
     redisURL: REDIS_URL,
   },
-  emailAdapter: {
-    module: 'parse-server-simple-mailgun-adapter',
-    options: {
-      fromAddress: 'no-reply@telpo.co.kr',
-      domain: 'sandbox62078ad2f196482eba6fc91e6d1295fd.mailgun.org',
-      apiKey: 'key-90728348be076a93b3e949cf66e9e0ee',
-    },
-  },
-  verifyUserEmails: true,
-  emailVerifyTokenValidityDuration: 2 * 60 * 60,
   preventLoginWithUnverifiedEmail: false,
-  appName: 'Telpo App',
-  customPages: {
-    invalidLink: `${APP_URL}/invalidLink`,
-    verifyEmailSuccess: `${APP_URL}/verifyEmailSuccess`,
-    choosePassword: `${APP_URL}/choosePasword`,
-    passwordResetSuccess: `${APP_URL}/passwordResetSuccess`,
-  },
 }));
 
 app.get('*', (req, res) => {

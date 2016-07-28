@@ -9,12 +9,12 @@ export const recommendationEvent = new pio.Events({
   appId: PIO_TELPO_RECOMMENDATION.appId,
   accessKey: PIO_TELPO_RECOMMENDATION.accessKey,
   url: PIO_TELPO_RECOMMENDATION.url,
-  eventPort: PIO_TELPO_RECOMMENDATION.eventPort,
+  port: PIO_TELPO_RECOMMENDATION.eventPort,
 });
 
 export const recommendationEngine = new pio.Engine({
   url: PIO_TELPO_RECOMMENDATION.url,
-  enginePort: PIO_TELPO_RECOMMENDATION.enginePort,
+  port: PIO_TELPO_RECOMMENDATION.enginePort,
 });
 
 export const Game: Object = Parse.Object.extend('Game');

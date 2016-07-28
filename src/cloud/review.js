@@ -1,7 +1,5 @@
 // @flow
 
-import { recommendationEvent } from './utils';
-
 Parse.Cloud.beforeSave('Review', async (request, response) => {
   try {
     const review = request.object;
@@ -42,15 +40,7 @@ Parse.Cloud.afterSave('Review', async (request) => {
           rateCount += 1;
           averageRate = ((averageRate * (rateCount - 1)) + rate) / rateCount;
           game.set('averageRate', averageRate);
-          game.set('rateCount', rateCount);
-          await recommendationEvent.createAction({
-            event: 'rate',
-            uid: user.id,
-            iid: game.id,
-            properties: {
-              rating: rate,
-            },
-          });
+          game.increment('rateCount');
         }
         game.relation('rates').add(review);
       }
@@ -59,7 +49,7 @@ Parse.Cloud.afterSave('Review', async (request) => {
         let averageRate: number = user.get('averageRate') || 0;
         averageRate = ((averageRate * (rateCount - 1)) + rate) / rateCount;
         user.set('averageRate', averageRate);
-        user.set('rateCount', rateCount);
+        user.increment('rateCount');
         user.relation('rates').add(review);
       }
     } else {
@@ -69,38 +59,22 @@ Parse.Cloud.afterSave('Review', async (request) => {
           let averageRate = game.get('averageRate') || 0;
           let rateCount = game.get('rateCount') || 0;
           const rateSum = averageRate * rateCount;
+          // update rate
+          if (typeof (rate) === 'number' && typeof (previousRate) === 'number') {
+            averageRate = (rateSum + (rate - previousRate)) / rateCount;
+          }
           if (rate && !previousRate) {
             // new rate
             rateCount += 1;
             averageRate = (rateSum + rate) / rateCount;
-            await recommendationEvent.createAction({
-              event: 'rate',
-              uid: user.id,
-              iid: game.id,
-              properties: {
-                rating: rate,
-              },
-            });
+            game.increment('rateCount');
           } else if (!rate && previousRate) {
             // remove rate
             rateCount -= 1;
             averageRate = (rateSum - previousRate) / rateCount;
-          } else {
-            // update rate
-            if (typeof (rate) === 'number' && typeof (previousRate) === 'number') {
-              averageRate = (rateSum + (rate - previousRate)) / rateCount;
-            }
-            await recommendationEvent.createAction({
-              event: 'rate',
-              uid: user.id,
-              iid: game.id,
-              properties: {
-                rating: rate,
-              },
-            });
+            game.increment('rateCount', -1);
           }
           game.set('averageRate', averageRate);
-          game.set('rateCount', rateCount);
         }
       }
       if (rate !== previousRate) {
@@ -114,13 +88,14 @@ Parse.Cloud.afterSave('Review', async (request) => {
           rateCount += 1;
           averageRate = (rateSum + rate) / rateCount;
           user.relation('rates').add(review);
+          user.increment('rateCount');
         } else if (!rate && previousRate) {
           rateCount -= 1;
           averageRate = (rateSum - previousRate) / rateCount;
           user.relation('rates').remove(review);
+          user.increment('rateCount', -1);
         }
         user.set('averageRate', averageRate);
-        user.set('rateCount', rateCount);
       }
     }
     if (game && game.dirty()) {
@@ -143,7 +118,7 @@ Parse.Cloud.afterDelete('Review', async (request, response) => {
       const rateCount = user.get('rateCount') - 1;
       let averageRate = user.get('averageRate');
       averageRate = rateCount === 0 ? 0 : ((averageRate * (rateCount + 1)) - rate) / rateCount;
-      user.set('rateCount', rateCount);
+      user.increment('rateCount', -1);
       user.set('averageRate', averageRate);
       user.relation('rates').remove(review);
     }
@@ -153,7 +128,7 @@ Parse.Cloud.afterDelete('Review', async (request, response) => {
         const rateCount = game.get('rateCount') - 1;
         let averageRate = game.get('averageRate');
         averageRate = rateCount === 0 ? 0 : ((averageRate * (rateCount + 1)) - rate) / rateCount;
-        game.set('rateCount', rateCount);
+        game.increment('rateCount', -1);
         game.set('averageRate', averageRate);
       }
       game.relation('rates').remove(review);

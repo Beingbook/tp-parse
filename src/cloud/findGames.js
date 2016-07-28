@@ -29,7 +29,7 @@ Parse.Cloud.define('findGames', async (request, response) => {
     query
       .skip(skip || 0)
       .limit(limit || 40)
-      .ascending('poplularOrder');
+      .addDescending('popularOrder');
     if (mainTag) {
       const tagFilter = new Parse.Query('Tag');
       tagFilter.equalTo('label', mainTag);
@@ -45,10 +45,18 @@ Parse.Cloud.define('findGames', async (request, response) => {
         const reviewFilter = user.relation('rates').query();
         reviewFilter.exists('rate');
         reviewFilter.equalTo('author', user);
+        const rateCount = user.get('rateCount');
         if (contentFilter === 'onlyRatedByMe') {
-          query.matchesQuery('rates', reviewFilter);
+          if (rateCount) {
+            query.matchesQuery('rates', reviewFilter);
+          } else {
+            response.success([]);
+            return;
+          }
         } else if (contentFilter === 'withoutRatedByMe') {
-          query.doesNotMatchQuery('rates', reviewFilter);
+          if (rateCount) {
+            query.doesNotMatchQuery('rates', reviewFilter);
+          }
         }
       }
     }
