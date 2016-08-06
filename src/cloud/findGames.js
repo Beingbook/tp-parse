@@ -1,6 +1,6 @@
 // @flow
 import Promise from 'bluebird';
-import { getUserBySessionToken } from './utils';
+import { getUserBySessionToken, removeProtocol } from './utils';
 
 type gamesFuncArgs = {
   skip?: ?number,
@@ -86,20 +86,38 @@ Parse.Cloud.define('findGames', async (request, response) => {
           };
         }
       }
-      const gameTags: Array<Object> = await game.relation('tags').query().find(queryOptions);
-      const thumbnail: ?Object = game.get('thumbnail');
+      const seriesTags: Array<Object> = await game.relation('tags').query()
+        .equalTo('isSeries', true)
+        .find(queryOptions);
+      let thumbnail = game.get('thumbnail');
+      if (thumbnail) {
+        thumbnail = thumbnail.url();
+        thumbnail = removeProtocol(thumbnail);
+      }
+      let thumbnailMedium = game.get('thumbnailMedium');
+      if (thumbnailMedium) {
+        thumbnailMedium = thumbnailMedium.url();
+        thumbnailMedium = removeProtocol(thumbnailMedium);
+      }
+      let thumbnailSmall = game.get('thumbnailSmall');
+      if (thumbnailSmall) {
+        thumbnailSmall = thumbnailSmall.url();
+        thumbnailSmall = removeProtocol(thumbnailSmall);
+      }
       return {
         id: game.id,
         title: game.get('title'),
         koreanTitle: game.get('koreanTitle'),
         description: game.get('description'),
         words: game.get('words'),
-        thumbnail: thumbnail && thumbnail.url(),
+        thumbnail,
+        thumbnailSmall,
+        thumbnailMedium,
         averageRate: game.get('averageRate'),
         reviewCount: game.get('reviewCount'),
         rateCount: game.get('rateCount'),
         myReview,
-        tags: gameTags.map(fetchTags),
+        series: seriesTags.map(fetchTags),
       };
     };
     games = await Promise.map(games, fetchGames);

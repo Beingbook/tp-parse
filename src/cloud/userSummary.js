@@ -1,21 +1,23 @@
 // @flow
 
 import Promise from 'bluebird';
+import { removeProtocol } from './utils';
 
 const fetchGame = async (review: Object): Object => {
   const game = await review.get('game').fetch();
-  let thumbnail = game.get('thumbnail');
-  if (thumbnail) {
-    thumbnail = thumbnail.url();
-    thumbnail = thumbnail.replace(/.*?:\/\//g, '//');
+  let thumbnailExtraSmall = game.get('thumbnailExtraSmall');
+  if (thumbnailExtraSmall) {
+    thumbnailExtraSmall = thumbnailExtraSmall.url();
+    thumbnailExtraSmall = removeProtocol(thumbnailExtraSmall);
   }
   return {
     id: game.id,
     title: game.get('title'),
     koreanTitle: game.get('koreanTitle'),
-    thumbnail,
+    thumbnailExtraSmall,
     averageRate: game.get('averageRate'),
     rateCount: game.get('rateCount'),
+    rating: review.get('rate'),
   };
 };
 
@@ -27,33 +29,20 @@ Parse.Cloud.define('userSummary', async (request, response) => {
     }
     const query = new Parse.Query(Parse.User);
     const user = await query.get(userId);
-
     if (!user) {
       throw new Error('user is not existing');
     }
-    // const rates: Array<Object> = await user.relation('rates').query()
-    //   .include(['game', 'game.tags'])
-    //   .find();
-    // const rateCount: ?number = user.get('rateCount');
-
-    // @TODO: implment giving user title
-    // rates.map((review: Object) => {
-    //   const rate = review.get('rate'); // rating score
-    //   const game = review.get('game'); // target game
-    //   const tags = game.get('tags'); // tags of target game
-    // });
-
     const userReviews = user.relation('rates');
     const bestGamesQuery = userReviews.query();
     bestGamesQuery.exists('rate');
     bestGamesQuery.descending('rate');
-    bestGamesQuery.limit(10);
+    bestGamesQuery.limit(5);
     let bestGames = await bestGamesQuery.find();
     bestGames = await Promise.map(bestGames, fetchGame);
     const worstGamesQuery = userReviews.query();
     worstGamesQuery.exists('rate');
     worstGamesQuery.ascending('rate');
-    worstGamesQuery.limit(10);
+    worstGamesQuery.limit(5);
     let worstGames = await worstGamesQuery.find();
     worstGames = await Promise.map(worstGames, fetchGame);
     response.success({

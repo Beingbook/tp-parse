@@ -17,9 +17,7 @@ export const recommendationEngine = new pio.Engine({
   port: PIO_TELPO_RECOMMENDATION.enginePort,
 });
 
-export const Game: Object = Parse.Object.extend('Game');
-export const Review: Object = Parse.Object.extend('Review');
-export const Tag: Object = Parse.Object.extend('Tag');
+export const removeProtocol = (text: string) => text.replace(/.*?:\/\//g, '//');
 
 export async function getUserBySessionToken(sessionToken: string): Promise<Object> {
   const query = new Parse.Query(Parse.Session);
