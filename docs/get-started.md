@@ -3,11 +3,12 @@
 ## Installation
 
 * Node.js 4.x or 5.x
-* MongoDB Server (basically try to connect mongodb://localhost)
+* MongoDB Server (Check `./src/config.js`)
+* Redis Server to sync web sockets. (Check `./src/config.js`)
 
 ```sh
-git clone https://github.com/Beingbook/babel6-express.git
-cd babel6-express
+git clone https://github.com/Beingbook/telpo-parse.git
+cd telpo-parse
 npm i # alias to install
 ```
 

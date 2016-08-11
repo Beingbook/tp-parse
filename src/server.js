@@ -2,6 +2,7 @@
 /* eslint no-console: 0 */
 import express from 'express';
 import http from 'http';
+import cors from 'cors';
 import { ParseServer } from 'parse-server';
 import {
   PARSE_CLOUD_PATH,
@@ -15,6 +16,8 @@ import {
 } from './config';
 
 const app = express();
+
+app.use(cors());
 
 app.use('/parse', new ParseServer({
   databaseURI: PARSE_DATABASE_URI,
@@ -35,7 +38,7 @@ app.use('/parse', new ParseServer({
   },
 }));
 
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.status(200).send('Hello World');
 });
 

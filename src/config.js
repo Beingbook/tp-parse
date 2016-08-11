@@ -14,25 +14,4 @@ export const PARSE_MASTER_KEY: string =
 export const PARSE_SERVER_URL: string = env.PARSE_SERVER_URL || `http://localhost:${SERVER_PORT}/parse`;
 export const APP_URL: string = env.APP_URL || 'http://localhost:3000';
 
-export const TWITTER_CONSUMER_KEY: string = env.TWITTER_CONSUMER_KEY || '6666D9YOND3dtseR4omGs1QHq';
-export const TWITTER_CONSUMER_SECRET: string =
-  env.TWITTER_CONSUMER_SECRET || 'ASrzA77UL5qGd3uGYSZ4np5NT1bTwRlP4pvWA8DR9BcaNoFedW';
-
 export const FACEBOOK_APP_ID: string = env.FACEBOOK_APP_ID || '816545098482181';
-
-type pioAppConfig = {
-  appId: number;
-  accessKey: string;
-  eventPort: string;
-  enginePort: string;
-  url: string;
-};
-
-export const PIO_TELPO_RECOMMENDATION: pioAppConfig =
-  env.PIO_TELPO_RECOMMENDATION ? JSON.parse(env.PIO_TELPO_RECOMMENDATION) : {
-    appId: 6,
-    accessKey: '6qAF9oMdCYYW55Ln9TVm5iO9CXO1XAB6NotAUEGasAUls93yH4bsHCTedopkVttE',
-    eventPort: '7070',
-    enginePort: '8000',
-    url: 'http://175.126.111.30',
-  };
