@@ -8,7 +8,7 @@ type gamesFuncArgs = {
   tags?: ?Array<string>,
   search?: ?string,
   sessionToken?: ?string,
-  mainTag?: ?string,
+  mainTags?: ?Array<string>,
   contentFilter?: void | 'onlyRatedByMe' | 'withoutRatedByMe',
 };
 
@@ -20,7 +20,7 @@ const fetchTags = (tag) => ({
 Parse.Cloud.define('findGames', async (request, response) => {
   try {
     const {
-      skip, limit, tags, search, mainTag,
+      skip, limit, tags, search, mainTags,
       sessionToken, contentFilter,
     }: gamesFuncArgs = request.params;
     const queryOptions = { sessionToken };
@@ -30,12 +30,12 @@ Parse.Cloud.define('findGames', async (request, response) => {
       .skip(skip || 0)
       .limit(limit || 40)
       .addDescending('popularOrder');
-    if (mainTag) {
+    if (Array.isArray(mainTags) && mainTags.length) {
       const tagFilter = new Parse.Query('Tag');
-      tagFilter.equalTo('label', mainTag);
+      tagFilter.containedIn('label', mainTags);
       query.matchesQuery('tags', tagFilter);
     }
-    if (tags && tags.length) {
+    if (Array.isArray(tags) && tags.length) {
       const tagFilter = new Parse.Query('Tag');
       tagFilter.containedIn('label', tags);
       query.matchesQuery('tags', tagFilter);
