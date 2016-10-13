@@ -5,7 +5,7 @@ if (process.argv.length < 3) {
 }
 
 const taskName = process.argv[2];
-const task = require(`./tasks/${taskName}`);
+const task = require(`./tasks/${taskName}`); // eslint-disable-line import/no-dynamic-require
 if (!task) {
   throw Error(`Unknown task <${taskName}>`);
 }

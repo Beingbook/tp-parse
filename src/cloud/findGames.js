@@ -12,7 +12,7 @@ type gamesFuncArgs = {
   contentFilter?: void | 'onlyRatedByMe' | 'withoutRatedByMe',
 };
 
-const fetchTags = (tag) => ({
+const fetchTags = tag => ({
   id: tag.id,
   label: tag.get('label'),
 });
